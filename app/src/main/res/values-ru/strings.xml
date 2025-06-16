@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Yakt</string>
+    <string name="run_script">Запустить скрипт</string>
+    <string name="run_script_description">Выполните скрипт вручную.</string>
+    <string name="apply_on_boot">Применить при запуске</string>
+    <string name="apply_on_boot_description">Включите эту функцию, чтобы применять скрипт при запуске.</string>
+
+    <string name="home">Главная</string>
+    <string name="extras">Дополнительно</string>
+    <string name="information">Инфо</string>
+
+    <string name="select_mode">Выберите режим</string>
+    <string name="mode_battery">Аккумулятор</string> <!-- String resource for Battery mode -->
+    <string name="mode_balanced">Сбалансированный</string> <!-- String resource for Balanced mode -->
+    <string name="mode_gaming">Игры</string> <!-- String resource for Gaming mode -->
+    <string name="mode_latency">Задержка</string> <!-- String resource for Latency mode -->
+    <string name="mode_label">Режим: %1$s</string>
+    <string name="mode_icon_description">Значок для режима %1$s</string>
+    <string name="close">Закрыть</string>
+    <string name="choose_mode">Выберите режим</string>
+    <string name="current_mode">Текущий режим: %1$s</string>
+    <string name="oneplus">Отключить блокировку частоты кадров OnePlus</string>
+    <string name="oneplus_description">Отключает блокировку частоты кадров OnePlus при определенной температуре</string>
+
+    <string name="framerate">Отключить стандартную частоту кадров для игр</string>
+    <string name="framerate_description">Отключает стандартную частоту кадров для игр на A15+.</string>
+
+    <string name="dex">Оптимизация DEX</string>
+    <string name="dex_description">Оптимизирует ваши приложения Android для увеличения времени работы от батареи и повышения производительности.</string>
+
+    <string name="update_available_title">Доступна новая версия (%1$s):</string>
+    <string name="update_latest_version">Вы используете последнюю версию (%1$s).</string>
+    <string name="update_check_failed">Не удалось проверить наличие обновлений: %1$s</string>
+    <string name="http_error">Ошибка HTTP %1$d</string>
+    <string name="empty_response">Пустой ответ</string>
+    <string name="update_success">Скрипты обновлены до версии %1$s</string>
+    <string name="update_failed">Ошибка обновления: %1$s</string>
+    <string name="download_failed">Не удалось загрузить %1$s</string>
+    <string name="empty_script_content">Пустое содержимое скрипта</string>
+
+    <string name="root_access_required_title">Требуется доступ к корневой папке</string>
+    <string name="root_access_required_text">Для полноценной работы этого приложения требуются права root.</string>
+    <string name="ok">OK</string>
+    <string name="update_available_snackbar">Доступно обновление для скриптов!</string>
+    <string name="update_action">Обновление</string>
+
+    <string name="select_dns_mode_title">Выберите режим DNS</string>
+    <string name="select_dns_mode_description">Выберите поставщика DNS для вашей сети.</string>
+    <string name="dns_icon_description">Значок DNS</string>
+
+    <string name="view_log_title">Просмотр журнала сценариев</string>
+    <string name="view_log_description">Просмотреть журнал выполнения скрипта.</string>
+    <string name="log_file_not_found">Файл журнала не найден.</string>
+
+    <string name="android_version">Версия Android</string>
+    <string name="kernel_version">Версия ядра</string>
+    <string name="gpu">GPU</string>
+    <string name="total_ram">Общий объем RAM</string>
+    <string name="battery_temperature">Температура аккумулятора</string>
+    <string name="battery_capacity">Емкость аккумулятора</string>
+    <string name="battery_health">Состояние батареи</string>
+
+    <string name="script_update_check_title">Проверка обновления сценария</string>
+    <string name="update">Обновление</string>
+</resources>

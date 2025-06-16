@@ -1,0 +1,27 @@
+# Gradle build
+.gradle/
+build/
+*/build/
+app/src/test/
+app/src/androidTest/
+
+
+# Local configuration
+local.properties
+
+# Logs and crash reports
+*.log
+
+# IDE files
+.idea/
+*.iml
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Android Studio
+.cxx/
+.externalNativeBuild/
+captures/
+

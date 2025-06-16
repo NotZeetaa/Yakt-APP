@@ -1,0 +1,66 @@
+<resources>
+    <string name="app_name">Yakt</string>
+    <string name="run_script">Executar o script</string>
+    <string name="run_script_description">Execute o script manualmente.</string>
+    <string name="apply_on_boot">Aplicar ao reiniciar</string>
+    <string name="apply_on_boot_description">Ative este recurso para aplicar o script ao reiniciar.</string>
+
+    <string name="home">Ínicio</string>
+    <string name="extras">Extras</string>
+    <string name="information">Informações</string>
+
+    <string name="select_mode">Selecione um modo</string>
+    <string name="mode_battery">Bateria</string> <!-- String resource for Battery mode -->
+    <string name="mode_balanced">Equilibrado</string> <!-- String resource for Balanced mode -->
+    <string name="mode_gaming">Jogo</string> <!-- String resource for Gaming mode -->
+    <string name="mode_latency">Latência</string> <!-- String resource for Latency mode -->
+    <string name="mode_label">Modo: %1$s</string>
+    <string name="mode_icon_description">Icon for %1$s mode</string>
+    <string name="close">Fechar</string>
+    <string name="choose_mode">Selecione um modo</string>
+    <string name="current_mode">Modo currente: %1$s</string>
+
+    <string name="oneplus">Desativar limite de FPS da OnePlus</string>
+    <string name="oneplus_description">Desativa o limite de FPS da OnePlus a uma certa temperatura</string>
+
+    <string name="framerate">Desativar taxa de fotogramas predefinida para jogos</string>
+    <string name="framerate_description">Desativa a taxa de fotogramas predefinida para jogos em dispositivos com A15 ou superior</string>
+
+    <string name="dex">Otimização DEX</string>
+    <string name="dex_description">Otimiza as suas aplicações Android para uma melhor duração da bateria e desempenho melhorado.</string>
+
+    <string name="update_available_title">Nova versão disponível (%1$s):</string>
+    <string name="update_latest_version">Está a usar a versão mais recente (%1$s).</string>
+    <string name="update_check_failed">Falha ao verificar atualizações: %1$s</string>
+    <string name="http_error">Erro HTTP %1$d</string>
+    <string name="empty_response">Corpo da resposta vazio</string>
+    <string name="update_success">Scripts atualizados para a versão %1$s</string>
+    <string name="update_failed">Falha na atualização: %1$s</string>
+    <string name="download_failed">Falha ao transferir %1$s</string>
+    <string name="empty_script_content">Conteúdo do script vazio</string>
+
+    <string name="root_access_required_title">Acesso Root Necessário</string>
+    <string name="root_access_required_text">Esta aplicação requer acesso root para funcionar totalmente.</string>
+    <string name="ok">OK</string>
+    <string name="update_available_snackbar">Atualização disponível para os scripts!</string>
+    <string name="update_action">Atualizar</string>
+
+    <string name="select_dns_mode_title">Selecionar modo DNS</string>
+    <string name="select_dns_mode_description">Escolha um fornecedor de DNS para a sua rede.</string>
+    <string name="dns_icon_description">Ícone DNS</string>
+
+    <string name="view_log_title">Ver registo do script</string>
+    <string name="view_log_description">Veja o registo de execução do script.</string>
+    <string name="log_file_not_found">Ficheiro de registo não encontrado.</string>
+
+    <string name="android_version">Versão do Android</string>
+    <string name="kernel_version">Versão do Kernel</string>
+    <string name="gpu">GPU</string>
+    <string name="total_ram">RAM Total</string>
+    <string name="battery_temperature">Temperatura da Bateria</string>
+    <string name="battery_capacity">Capacidade da Bateria</string>
+    <string name="battery_health">Saúde da Bateria</string>
+
+    <string name="script_update_check_title">Verificação de Atualização do Script</string>
+    <string name="update">Atualizar</string>
+</resources>

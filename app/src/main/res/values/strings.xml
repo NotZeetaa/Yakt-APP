@@ -1,0 +1,65 @@
+<resources>
+    <string name="app_name">Yakt</string>
+    <string name="run_script">Run script</string>
+    <string name="run_script_description">Execute the script manually.</string>
+    <string name="apply_on_boot">Apply on boot</string>
+    <string name="apply_on_boot_description">Enable this feature to apply the script on boot.</string>
+
+    <string name="home">Home</string>
+    <string name="extras">Extras</string>
+    <string name="information">Information</string>
+
+    <string name="select_mode">Select a Mode</string>
+    <string name="mode_battery">Battery</string> <!-- String resource for Battery mode -->
+    <string name="mode_balanced">Balanced</string> <!-- String resource for Balanced mode -->
+    <string name="mode_gaming">Gaming</string> <!-- String resource for Gaming mode -->
+    <string name="mode_latency">Latency</string> <!-- String resource for Latency mode -->
+    <string name="mode_label">Mode: %1$s</string>
+    <string name="mode_icon_description">Icon for %1$s mode</string>
+    <string name="close">Close</string>
+    <string name="choose_mode">Choose Mode</string>
+    <string name="current_mode">Current Mode: %1$s</string>
+    <string name="oneplus">Disable OnePlus fps lock</string>
+    <string name="oneplus_description">Disables OnePlus fps lock on a certain temperature</string>
+
+    <string name="framerate">Disable default framerate for games</string>
+    <string name="framerate_description">Disables the default framerate for games on A15+</string>
+
+    <string name="dex">DEX Optimization</string>
+    <string name="dex_description">Optimizes your Android apps for better battery life and improved performance.</string>
+
+    <string name="update_available_title">New version available (%1$s):</string>
+    <string name="update_latest_version">You\'re using the latest version (%1$s).</string>
+    <string name="update_check_failed">Failed to check for updates: %1$s</string>
+    <string name="http_error">HTTP error %1$d</string>
+    <string name="empty_response">Empty response body</string>
+    <string name="update_success">Scripts updated to version %1$s</string>
+    <string name="update_failed">Update failed: %1$s</string>
+    <string name="download_failed">Failed to download %1$s</string>
+    <string name="empty_script_content">Empty script content</string>
+
+    <string name="root_access_required_title">Root Access Required</string>
+    <string name="root_access_required_text">This app requires root access for full functionality.</string>
+    <string name="ok">OK</string>
+    <string name="update_available_snackbar">Update available for the scripts!</string>
+    <string name="update_action">Update</string>
+
+    <string name="select_dns_mode_title">Select DNS Mode</string>
+    <string name="select_dns_mode_description">Choose a DNS provider for your network.</string>
+    <string name="dns_icon_description">DNS Icon</string>
+
+    <string name="view_log_title">View Script Log</string>
+    <string name="view_log_description">View the execution log of the script.</string>
+    <string name="log_file_not_found">Log file not found.</string>
+
+    <string name="android_version">Android Version</string>
+    <string name="kernel_version">Kernel Version</string>
+    <string name="gpu">GPU</string>
+    <string name="total_ram">Total RAM</string>
+    <string name="battery_temperature">Battery Temperature</string>
+    <string name="battery_capacity">Battery Capacity</string>
+    <string name="battery_health">Battery Health</string>
+
+    <string name="script_update_check_title">Script Update Check</string>
+    <string name="update">Update</string>
+</resources>
