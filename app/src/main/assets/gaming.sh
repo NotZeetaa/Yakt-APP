@@ -73,7 +73,7 @@ write_value "$KERNEL_PATH/sched_migration_cost_ns" 5000000
 write_value "$KERNEL_PATH/sched_tunable_scaling" 0
 write_value "$KERNEL_PATH/perf_cpu_time_max_percent" 30
 write_value "$KERNEL_PATH/sched_schedstats" 0
-write_value "$MEMORY_PATH/vfs_cache_pressure" 50
+write_value "$MEMORY_PATH/vfs_cache_pressure" 80
 write_value "$MEMORY_PATH/stat_interval" 10
 write_value "$MEMORY_PATH/compaction_proactiveness" 0
 write_value "$MEMORY_PATH/page-cluster" 0
@@ -81,5 +81,7 @@ write_value "$MEMORY_PATH/swappiness" 100
 write_value "$MEMORY_PATH/dirty_ratio" 80
 write_value "$MODULE_PATH/workqueue/parameters/power_efficient" N
 write_value "$KGSL_PATH/throttling" 1
+write_value "$KERNEL_PATH/sched_schedstats" 0
+write_value "$KERNEL_PATH/printk_devkmsg" off
 
 echo -e "\n[$(date "+%H:%M:%S")] Gaming profile executed" >> $INFO_LOG

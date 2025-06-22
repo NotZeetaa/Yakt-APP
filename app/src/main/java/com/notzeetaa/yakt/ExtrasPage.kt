@@ -1,7 +1,6 @@
 package com.notzeetaa.yakt
 
 import android.content.Context
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -361,17 +360,8 @@ fun executeDnsScript(context: Context, dnsMode: String) {
         // Start the process
         val process = ProcessBuilder("sh", "-c", command).start()
 
-        // Capture standard output and error output
-        val outputStream = process.inputStream.bufferedReader().use { it.readText() }
-        val errorStream = process.errorStream.bufferedReader().use { it.readText() }
-
         // Wait for the process to complete
         val exitCode = process.waitFor()
-
-        // Log outputs for debugging
-        Log.d("DNS Script", "Command Output: $outputStream")
-        Log.d("DNS Script", "Error Output: $errorStream")
-        Log.d("DNS Script", "Exit Code: $exitCode")
 
         // Check if the script was successful
         if (exitCode == 0) {
@@ -380,9 +370,6 @@ fun executeDnsScript(context: Context, dnsMode: String) {
             Toast.makeText(context, "Failed to apply $dnsMode DNS", Toast.LENGTH_SHORT).show()
         }
     } catch (e: Exception) {
-        e.printStackTrace()
-        // Log the exception error
-        Log.e("DNS Script", "Error executing script: ${e.message}")
         Toast.makeText(context, "Error executing script", Toast.LENGTH_SHORT).show()
     }
 }
@@ -397,17 +384,8 @@ fun executeScript(context: Context, Mode: String, isChecked: Boolean) {
         // Start the process
         val process = ProcessBuilder("sh", "-c", command).start()
 
-        // Capture standard output and error output
-        val outputStream = process.inputStream.bufferedReader().use { it.readText() }
-        val errorStream = process.errorStream.bufferedReader().use { it.readText() }
-
         // Wait for the process to complete
         val exitCode = process.waitFor()
-
-        // Log outputs for debugging
-        Log.d("OnePlus Script $Mode $isChecked", "Command Output: $outputStream")
-        Log.d("OnePlus Script $Mode $isChecked", "Error Output: $errorStream")
-        Log.d("OnePlus Script $Mode $isChecked", "Exit Code: $exitCode")
 
         // Check if the script was successful
         if (exitCode == 0) {
@@ -416,9 +394,6 @@ fun executeScript(context: Context, Mode: String, isChecked: Boolean) {
             Toast.makeText(context, "Failed to apply $Mode OnePlus, value of it is $isChecked", Toast.LENGTH_SHORT).show()
         }
     } catch (e: Exception) {
-        e.printStackTrace()
-        // Log the exception error
-        Log.e("OnePlus Script", "Error executing script: ${e.message}")
         Toast.makeText(context, "Error executing script", Toast.LENGTH_SHORT).show()
     }
 }
@@ -433,14 +408,7 @@ suspend fun executeDexScript(context: Context, mode: String, type: String) {
         try {
             val process = ProcessBuilder("sh", "-c", command).start()
 
-            val outputStream = process.inputStream.bufferedReader().use { it.readText() }
-            val errorStream = process.errorStream.bufferedReader().use { it.readText() }
-
             val exitCode = process.waitFor()
-
-            Log.d("Dex Script $mode $type", "Command Output: $outputStream")
-            Log.d("Dex Script $mode $type", "Error Output: $errorStream")
-            Log.d("Dex Script $mode $type", "Exit Code: $exitCode")
 
             withContext(Dispatchers.Main) {
                 if (exitCode == 0) {
@@ -450,8 +418,6 @@ suspend fun executeDexScript(context: Context, mode: String, type: String) {
                 }
             }
         } catch (e: Exception) {
-            e.printStackTrace()
-            Log.e("Dex Script", "Error: ${e.message}")
             withContext(Dispatchers.Main) {
                 Toast.makeText(context, "Error executing script", Toast.LENGTH_SHORT).show()
             }

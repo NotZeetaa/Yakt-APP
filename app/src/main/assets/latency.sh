@@ -1,6 +1,5 @@
 #!/system/bin/sh
 
-# ======================== Latency Profile ========================
 # Log file location
 
 # Function to append a message to the specified log file
@@ -34,11 +33,10 @@ write_value() {
     # shellcheck disable=SC3043
     # shellcheck disable=SC2046
     local file_name=$(basename "$file_path")
-    local status_symbol status_text
 
     # Check if the file exists
     if [ ! -f "$file_path" ]; then
-        log_error "$(printf "$STR_FILE_NOT_EXIST" "$file_name")"
+        log_error "File $file_name does not exist."
         return 1
     fi
 
@@ -50,12 +48,10 @@ write_value() {
 
     # Write new value, log error if it fails
     if echo "$new_value" > "$file_path" 2>/dev/null; then
-        status_symbol="✔"
+        log_info " ○ $file_name: $old_value -> $new_value ✔"
     else
-        status_symbol="✖"
+        log_info " ○ $file_name: $old_value -> $new_value ✖"
     fi
-
-    log_info " ○ $file_name: $old_value -> $new_value $status_symbol $status_text"
 }
 
 # Modify the filenames for logs
@@ -66,33 +62,13 @@ ERROR_LOG="/data/data/com.notzeetaa.yakt/files/error.log"
 :> "$INFO_LOG"
 :> "$ERROR_LOG"
 
-# Detect system language
-LANG=$(getprop persist.sys.locale | cut -d'-' -f1)
-case "$LANG" in
-    "pt")  # Portuguese
-        STR_EXECUTING="Executando perfil de Latência..."
-        STR_EXECUTED="Perfil de Latência executado"
-        STR_FILE_NOT_EXIST="Arquivo %s não existe."
-        ;;
-    "ru")  # Russian
-        STR_EXECUTING="Выполнение профиля Latency..."
-        STR_EXECUTED="Профиль Latency выполнен"
-        STR_FILE_NOT_EXIST="Файл %s не существует."
-        ;;
-    *)    # Default to English
-        STR_EXECUTING="Executing Latency profile..."
-        STR_EXECUTED="Latency profile executed"
-        STR_FILE_NOT_EXIST="File %s does not exist."
-        ;;
-esac
-
 # Variables
 MODULE_PATH="/sys/module"
 KERNEL_PATH="/proc/sys/kernel"
 MEMORY_PATH="/proc/sys/vm"
 KGSL_PATH="/sys/class/kgsl/kgsl-3d0/"
 
-echo -e "[$(date "+%H:%M:%S")] $STR_EXECUTING\n" > $INFO_LOG
+echo -e "[$(date "+%H:%M:%S")] Executing Latency profile...\n" > $INFO_LOG
 
 write_value "$KERNEL_PATH/sched_autogroup_enabled" 1
 write_value "$KERNEL_PATH/sched_child_runs_first" 1
@@ -112,4 +88,4 @@ write_value "$KGSL_PATH/throttling" 1
 write_value "$KERNEL_PATH/sched_schedstats" 0
 write_value "$KERNEL_PATH/printk_devkmsg" off
 
-echo -e "\n[$(date "+%H:%M:%S")] $STR_EXECUTED" >> $INFO_LOG
+echo -e "\n[$(date "+%H:%M:%S")] Latency profile executed" >> $INFO_LOG

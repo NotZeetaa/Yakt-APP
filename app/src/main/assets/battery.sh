@@ -81,5 +81,7 @@ write_value "$MEMORY_PATH/swappiness" 10
 write_value "$MEMORY_PATH/dirty_ratio" 40
 write_value "$MODULE_PATH/workqueue/parameters/power_efficient" Y
 write_value "$KGSL_PATH/throttling" 1
+write_value "$KERNEL_PATH/sched_schedstats" 0
+write_value "$KERNEL_PATH/printk_devkmsg" off
 
 echo -e "\n[$(date "+%H:%M:%S")] Battery profile executed" >> $INFO_LOG
