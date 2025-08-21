@@ -50,6 +50,19 @@ write_value() {
     fi
 }
 
+get_cores() {
+    grep -c ^processor /proc/cpuinfo
+}
+
+get_min_granularity() {
+    local base=$1
+    echo $(( base / $(get_cores) ))
+}
+
+get_wakeup_granularity() {
+    get_min_granularity $1
+}
+
 # Modify the filenames for logs
 INFO_LOG="/data/data/com.notzeetaa.yakt/files/yakt.log"
 ERROR_LOG="/data/data/com.notzeetaa.yakt/files/error.log"
@@ -66,12 +79,15 @@ KGSL_PATH="/sys/class/kgsl/kgsl-3d0/"
 
 echo -e "[$(date "+%H:%M:%S")] Executing Battery profile...\n" > $INFO_LOG
 
+cores=$(get_cores)
 write_value "$KERNEL_PATH/sched_autogroup_enabled" 0
 write_value "$KERNEL_PATH/sched_child_runs_first" 0
 write_value "$KERNEL_PATH/sched_nr_migrate" 32
 write_value "$KERNEL_PATH/sched_migration_cost_ns" 5000000
+write_value "$KERNEL_PATH/sched_min_granularity_ns" $(get_min_granularity 3000000)
+write_value "$KERNEL_PATH/sched_wakeup_granularity_ns" $(get_wakeup_granularity 4000000)
 write_value "$KERNEL_PATH/sched_tunable_scaling" 0
-write_value "$KERNEL_PATH/perf_cpu_time_max_percent" 2
+write_value "$KERNEL_PATH/perf_cpu_time_max_percent" $((20 + cores*2))
 write_value "$KERNEL_PATH/sched_schedstats" 0
 write_value "$MEMORY_PATH/vfs_cache_pressure" 100
 write_value "$MEMORY_PATH/stat_interval" 10
@@ -80,8 +96,10 @@ write_value "$MEMORY_PATH/page-cluster" 0
 write_value "$MEMORY_PATH/swappiness" 10
 write_value "$MEMORY_PATH/dirty_ratio" 40
 write_value "$MODULE_PATH/workqueue/parameters/power_efficient" Y
-write_value "$KGSL_PATH/throttling" 1
+write_value "$KGSL_PATH/throttling" 2
 write_value "$KERNEL_PATH/sched_schedstats" 0
 write_value "$KERNEL_PATH/printk_devkmsg" off
+write_value "$KGSL_PATH/force_no_nap" 0
+write_value "$KGSL_PATH/bus_split" 0
 
 echo -e "\n[$(date "+%H:%M:%S")] Battery profile executed" >> $INFO_LOG

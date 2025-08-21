@@ -7,14 +7,14 @@ plugins {
 
 android {
     namespace = "com.notzeetaa.yakt"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.notzeetaa.yakt"
         minSdk = 28
-        targetSdk = 34
-        versionCode = 24
-        versionName = "1.7"
+        targetSdk = 36
+        versionCode = 34
+        versionName = "1.7.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
