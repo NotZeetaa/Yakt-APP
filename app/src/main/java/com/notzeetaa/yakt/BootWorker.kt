@@ -21,17 +21,25 @@ class BootWorker(context: Context, params: WorkerParameters) : CoroutineWorker(c
 
             // Determinar qual script usar
             val scriptName = when (selectedMode) {
-                0 -> "battery.sh"
-                1 -> "balanced.sh"
-                2 -> "gaming.sh"
-                3 -> "latency.sh"
+                0 -> "battery"
+                1 -> "balanced"
+                2 -> "gaming"
+                3 -> "latency"
                 else -> return@withContext Result.failure()
+            }
+
+            val currentMode = when (selectedMode) {
+                0 -> "battery"
+                1 -> "balanced"
+                2 -> "gaming"
+                3 -> "latency"
+                else -> "balanced"
             }
 
             // Copiar e executar o script
             val scriptFile = copyAssetFileToStorage(applicationContext, scriptName)
             grantExecutePermission(scriptFile)
-            executeShellScript(scriptFile)
+            executeShellScript(scriptFile, currentMode)
 
             Result.success()
         } catch (e: Exception) {

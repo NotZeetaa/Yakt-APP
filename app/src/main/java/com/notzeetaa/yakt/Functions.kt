@@ -1,8 +1,12 @@
 package com.notzeetaa.yakt
 
+import android.content.ContentValues.TAG
 import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.runtime.Composable
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.getValue
@@ -33,7 +37,7 @@ class PreferencesManager(context: Context) {
     }
 
     fun getScriptVersion(): String {
-        return sharedPreferences.getString("script_version", "1.3") ?: "1.3"
+        return sharedPreferences.getString("script_version", "1.4") ?: "1.4"
     }
 }
 
@@ -150,7 +154,9 @@ fun ReusableCard(
     showSwitch: Boolean = false,
     switchState: Boolean = false,
     onSwitchChange: ((Boolean) -> Unit)? = null,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    // 👇 NEW slot for custom UI on the right side
+    extraContent: @Composable RowScope.() -> Unit = {}
 ) {
     Card(
         modifier = Modifier
@@ -188,6 +194,8 @@ fun ReusableCard(
                     enabled = isEnabled
                 )
             }
+            // 👇 Place for extra content (Stop AI button, etc.)
+            extraContent()
         }
     }
 }
@@ -211,13 +219,41 @@ fun grantExecutePermission(file: File) {
     file.setExecutable(true, false)
 }
 
-fun executeShellScript(scriptFile: File) {
+suspend fun executeShellScript(scriptFile: File, selectedMode: String) {
+    try {
+        // Build absolute path
+        val scriptPath = scriptFile.absolutePath
+
+        // Make sure it’s executable
+        scriptFile.setExecutable(true)
+
+        Log.d(TAG, "executeShellScript: $selectedMode")
+
+        // Run with su -c "sh /path/to/script"
+        val process = Runtime.getRuntime().exec(
+            arrayOf("su", "-c", "sh $scriptPath", selectedMode)
+        )
+
+        stopAiScript()
+
+        val exitCode = process.waitFor()
+        if (exitCode != 0) {
+            val error = process.errorStream.bufferedReader().readText()
+            println("Script failed: $error")
+        }
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
+}
+
+fun executeShellScriptAI(scriptFile: File) {
     try {
         Runtime.getRuntime().exec(arrayOf("su", "-c", scriptFile.absolutePath)).waitFor()
     } catch (e: Exception) {
         e.printStackTrace()
     }
 }
+
 
 fun clearAndCreateCacheFolder(context: Context) {
     val cacheDir = context.cacheDir
@@ -226,3 +262,95 @@ fun clearAndCreateCacheFolder(context: Context) {
     }
     cacheDir.mkdirs()
 }
+
+suspend fun isAiRunning(): Boolean = withContext(Dispatchers.IO) {
+    return@withContext try {
+        // Try multiple approaches to detect the process
+        val commands = arrayOf(
+            arrayOf("su", "-c", "ps -A | grep ai.sh"),
+            arrayOf("su", "-c", "pgrep -f ai.sh"),
+            arrayOf("su", "-c", "pidof ai.sh")
+        )
+
+        for (cmd in commands) {
+            try {
+                val process = Runtime.getRuntime().exec(cmd)
+                val output = process.inputStream.bufferedReader().readText().trim()
+                val exitCode = process.waitFor()
+
+                if (exitCode == 0 && output.isNotBlank()) {
+                    return@withContext true
+                }
+            } catch (e: Exception) {
+                // Try next command if this one fails
+                continue
+            }
+        }
+        false
+    } catch (e: Exception) {
+        false
+    }
+}
+
+
+
+suspend fun stopAiScript(): Boolean = withContext(Dispatchers.IO) {
+    return@withContext try {
+        // Method 2: Use pkill if available (more reliable)
+        val pkillProcess = Runtime.getRuntime().exec(arrayOf("su", "-c", "pkill -f 'ai.sh'"))
+        val exitCode = pkillProcess.waitFor()
+
+        if (exitCode == 0) {
+            Log.d("STOP_AI", "pkill successfully stopped AI script")
+            true
+        } else {
+            // Fallback to pgrep + kill method
+            Log.d("STOP_AI", "pkill failed, trying fallback method")
+            stopAiScriptFallback()
+        }
+    } catch (e: Exception) {
+        Log.e("STOP_AI", "pkill failed, trying fallback: ${e.message}")
+        stopAiScriptFallback()
+    }
+}
+
+private suspend fun stopAiScriptFallback(): Boolean = withContext(Dispatchers.IO) {
+    try {
+        // Find all processes containing ai.sh
+        val psProcess = Runtime.getRuntime().exec(arrayOf("su", "-c", "ps -ef | grep 'ai.sh' | grep -v grep"))
+        val output = psProcess.inputStream.bufferedReader().readText().trim()
+        psProcess.waitFor()
+
+        if (output.isNotEmpty()) {
+            val lines = output.split("\n")
+            var success = true
+
+            for (line in lines) {
+                try {
+                    // Extract PID - usually the second column in ps output
+                    val parts = line.trim().split(Regex("\\s+"))
+                    if (parts.size >= 2) {
+                        val pid = parts[1]
+                        val killProcess = Runtime.getRuntime().exec(arrayOf("su", "-c", "kill -9 $pid"))
+                        val exitCode = killProcess.waitFor()
+                        if (exitCode != 0) {
+                            success = false
+                            Log.e("STOP_AI", "Failed to kill process $pid")
+                        }
+                    }
+                } catch (e: Exception) {
+                    Log.e("STOP_AI", "Error processing line: $line - ${e.message}")
+                    success = false
+                }
+            }
+            success
+        } else {
+            false
+        }
+    } catch (e: Exception) {
+        Log.e("STOP_AI", "Fallback method failed: ${e.message}")
+        false
+    }
+}
+
+

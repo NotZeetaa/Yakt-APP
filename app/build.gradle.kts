@@ -13,8 +13,8 @@ android {
         applicationId = "com.notzeetaa.yakt"
         minSdk = 28
         targetSdk = 36
-        versionCode = 34
-        versionName = "1.7.1"
+        versionCode = 35
+        versionName = "1.8"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

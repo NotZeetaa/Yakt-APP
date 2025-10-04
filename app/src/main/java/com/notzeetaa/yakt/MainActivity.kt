@@ -129,6 +129,9 @@ class MainActivity : ComponentActivity() {
                             composable("information") {
                                 InformationPage(viewModel)
                             }
+                            composable(AppScreen.LOG_VIEWER.name) {
+                                LogViewerPage(navController, viewModel)
+                            }
                         }
                     }
                 }

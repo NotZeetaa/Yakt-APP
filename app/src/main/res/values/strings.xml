@@ -14,6 +14,7 @@
     <string name="mode_balanced">Balanced</string> <!-- String resource for Balanced mode -->
     <string name="mode_gaming">Gaming</string> <!-- String resource for Gaming mode -->
     <string name="mode_latency">Latency</string> <!-- String resource for Latency mode -->
+    <string name="mode_ai">AI</string> <!-- String resource for Latency mode -->
     <string name="mode_label">Mode: %1$s</string>
     <string name="mode_icon_description">Icon for %1$s mode</string>
     <string name="close">Close</string>
@@ -59,6 +60,9 @@
     <string name="battery_temperature">Battery Temperature</string>
     <string name="battery_capacity">Battery Capacity</string>
     <string name="battery_health">Battery Health</string>
+
+    <string name="donation_title">Support Development</string>
+    <string name="donation_description">Consider donating to support ongoing development</string>
 
     <string name="script_update_check_title">Script Update Check</string>
     <string name="update">Update</string>

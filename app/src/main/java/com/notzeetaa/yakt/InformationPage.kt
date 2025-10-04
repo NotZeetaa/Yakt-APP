@@ -7,6 +7,10 @@ import android.os.BatteryManager
 import android.os.Build
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -23,6 +27,12 @@ import java.io.InputStreamReader
 import kotlin.math.ceil
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
 
 @Composable
 fun InformationPage(viewModel: MyViewModel) {
@@ -37,6 +47,7 @@ fun InformationPage(viewModel: MyViewModel) {
     var batteryTemp by remember { mutableStateOf("Loading...") }
     var batteryCapacity by remember { mutableStateOf("Loading...") }
     var batteryHealth by remember { mutableStateOf("Loading...") }
+    var appVersion by remember { mutableStateOf("Loading...") }
 
     var showContent by remember { mutableStateOf(false) }
 
@@ -46,6 +57,7 @@ fun InformationPage(viewModel: MyViewModel) {
             kernelVersion = getKernelVersion()
             gpuInformation = getGpuInformation()
             ramInformation = getTotalRam()
+            appVersion = getAppVersion(context)
 
             val (temp, health) = getBatteryStatusInfo(context)
             batteryTemp = temp
@@ -69,57 +81,191 @@ fun InformationPage(viewModel: MyViewModel) {
             enter = fadeIn(tween(500)),
             exit = fadeOut(tween(500))
         ) {
-            CircularProgressIndicator()
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(48.dp),
+                    strokeWidth = 3.dp
+                )
+                Text(
+                    text = "Loading system information...",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                )
+            }
         }
 
         AnimatedVisibility(
             visible = showContent,
-            enter = fadeIn(tween(500))
+            enter = fadeIn(tween(500)) + slideInVertically(initialOffsetY = { it / 2 }),
+            exit = fadeOut(tween(300))
         ) {
             Column(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
-                InfoCard(stringResource(R.string.android_version), androidVersion)
-                InfoCard(stringResource(R.string.kernel_version), kernelVersion)
-                InfoCard(stringResource(R.string.gpu), gpuInformation)
-                InfoCard(stringResource(R.string.total_ram), ramInformation)
-                InfoCard(stringResource(R.string.battery_temperature), batteryTemp)
-                InfoCard(stringResource(R.string.battery_capacity), batteryCapacity)
-                InfoCard(stringResource(R.string.battery_health), batteryHealth)
+                // System Information Section
+                Text(
+                    text = "System Information",
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp)
+                )
+
+                ModernInfoCard(
+                    title = stringResource(R.string.android_version),
+                    value = androidVersion,
+                    icon = Icons.Filled.Info,
+                    iconBackgroundColor = MaterialTheme.colorScheme.primaryContainer
+                )
+
+                ModernInfoCard(
+                    title = stringResource(R.string.kernel_version),
+                    value = kernelVersion,
+                    icon = Icons.Filled.Settings,
+                    iconBackgroundColor = MaterialTheme.colorScheme.secondaryContainer
+                )
+
+                ModernInfoCard(
+                    title = stringResource(R.string.gpu),
+                    value = gpuInformation,
+                    icon = Icons.Filled.Info,
+                    iconBackgroundColor = MaterialTheme.colorScheme.tertiaryContainer
+                )
+
+                ModernInfoCard(
+                    title = stringResource(R.string.total_ram),
+                    value = ramInformation,
+                    icon = Icons.Filled.Info,
+                    iconBackgroundColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.8f)
+                )
+
+                // Battery Information Section
+                Text(
+                    text = "Battery Information",
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(PaddingValues(start = 8.dp, top = 8.dp, end = 8.dp))
+                )
+
+                ModernInfoCard(
+                    title = stringResource(R.string.battery_temperature),
+                    value = batteryTemp,
+                    icon = Icons.Filled.Info,
+                    iconBackgroundColor = MaterialTheme.colorScheme.errorContainer
+                )
+
+                ModernInfoCard(
+                    title = stringResource(R.string.battery_capacity),
+                    value = batteryCapacity,
+                    icon = Icons.Filled.Info,
+                    iconBackgroundColor = MaterialTheme.colorScheme.secondaryContainer
+                )
+
+                ModernInfoCard(
+                    title = stringResource(R.string.battery_health),
+                    value = batteryHealth,
+                    icon = Icons.Filled.Info,
+                    iconBackgroundColor = when (batteryHealth) {
+                        "Good" -> MaterialTheme.colorScheme.primaryContainer
+                        "Overheat" -> MaterialTheme.colorScheme.errorContainer
+                        "Dead" -> MaterialTheme.colorScheme.errorContainer
+                        else -> MaterialTheme.colorScheme.surfaceVariant
+                    }
+                )
+
+                // App Information Section
+                Text(
+                    text = "App Information",
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(PaddingValues(start = 8.dp, top = 8.dp, end = 8.dp))
+                )
+
+                ModernInfoCard(
+                    title = "App Version",
+                    value = appVersion,
+                    icon = Icons.Filled.Info,
+                    iconBackgroundColor = MaterialTheme.colorScheme.tertiaryContainer
+                )
             }
         }
     }
 }
 
 @Composable
-fun InfoCard(title: String, value: String) {
+fun ModernInfoCard(
+    title: String,
+    value: String,
+    icon: ImageVector,
+    iconBackgroundColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.surfaceVariant
+) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 4.dp),
+        shape = RoundedCornerShape(20.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+            contentColor = MaterialTheme.colorScheme.onSurface
+        )
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.Start
+        Row(
+            modifier = Modifier
+                .padding(20.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleMedium,
-                fontSize = 18.sp,
-                textAlign = TextAlign.Start,
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = value,
-                style = MaterialTheme.typography.bodyLarge,
-                textAlign = TextAlign.Start,
-                modifier = Modifier.fillMaxWidth()
-            )
+            // Icon with background
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(iconBackgroundColor),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = title,
+                    modifier = Modifier.size(24.dp),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            // Text content
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                    fontWeight = FontWeight.Medium
+                )
+                Text(
+                    text = value,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
         }
     }
 }
@@ -213,4 +359,14 @@ fun getBatteryCapacityFromProfile(context: Context): String = try {
     "${batteryCapacity.toInt()} mAh"
 } catch (e: Exception) {
     "Unknown"
+}
+
+// New function to get app version
+fun getAppVersion(context: Context): String {
+    return try {
+        val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
+        "${packageInfo.versionName} (${packageInfo.versionCode})"
+    } catch (e: Exception) {
+        "Unknown"
+    }
 }
