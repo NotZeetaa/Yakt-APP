@@ -41,7 +41,7 @@ android {
 }
 
 dependencies {
-
+    implementation("io.coil-kt:coil-compose:2.7.0")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -53,6 +53,7 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.androidx.room.common.jvm)
+    implementation(libs.androidx.compose.foundation)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

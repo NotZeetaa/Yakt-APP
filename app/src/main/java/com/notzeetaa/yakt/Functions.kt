@@ -4,7 +4,9 @@ import android.content.ContentValues.TAG
 import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import androidx.compose.foundation.layout.*
@@ -28,6 +30,10 @@ import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
 import androidx.core.content.edit
+import java.io.BufferedReader
+import java.io.InputStreamReader
+import java.text.SimpleDateFormat
+import java.util.*
 
 class PreferencesManager(context: Context) {
     private val sharedPreferences = context.getSharedPreferences("yakt_prefs", Context.MODE_PRIVATE)
@@ -161,10 +167,15 @@ fun ReusableCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(enabled = isEnabled) { onClick() },
+            .clickable(
+                enabled = isEnabled,
+                onClick = onClick,
+                indication = null, // Fix for Material 3 compatibility
+                interactionSource = remember { MutableInteractionSource() }
+            ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (isEnabled) MaterialTheme.colorScheme.surface else Color.Gray
+            containerColor = if (isEnabled) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.surfaceVariant
         )
     ) {
         Row(
@@ -174,7 +185,7 @@ fun ReusableCard(
             Icon(
                 painter = painterResource(id = iconId),
                 contentDescription = null,
-                tint = if (isEnabled) MaterialTheme.colorScheme.primary else Color.DarkGray
+                tint = if (isEnabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
             )
             Spacer(modifier = Modifier.width(8.dp))
             Column(modifier = Modifier.weight(1f)) {
@@ -183,7 +194,7 @@ fun ReusableCard(
                 Text(
                     text = description,
                     fontSize = 13.sp,
-                    color = if (isEnabled) MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f) else Color.DarkGray
+                    color = if (isEnabled) MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f) else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
                 )
             }
 
@@ -224,7 +235,7 @@ suspend fun executeShellScript(scriptFile: File, selectedMode: String) {
         // Build absolute path
         val scriptPath = scriptFile.absolutePath
 
-        // Make sure it’s executable
+        // Make sure it's executable
         scriptFile.setExecutable(true)
 
         Log.d(TAG, "executeShellScript: $selectedMode")
@@ -253,7 +264,6 @@ fun executeShellScriptAI(scriptFile: File) {
         e.printStackTrace()
     }
 }
-
 
 fun clearAndCreateCacheFolder(context: Context) {
     val cacheDir = context.cacheDir
@@ -292,7 +302,18 @@ suspend fun isAiRunning(): Boolean = withContext(Dispatchers.IO) {
     }
 }
 
+// Logging utility function
+private fun logToFile(message: String) {
+    try {
+        val timestamp = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
+        val logMessage = "[$timestamp] [USER_ACTION] $message\n"
 
+        // Append to log file with su privileges
+        Runtime.getRuntime().exec(arrayOf("su", "-c", "echo '$logMessage' >> /data/data/com.notzeetaa.yakt/files/yakt.log"))
+    } catch (e: Exception) {
+        Log.e("LOG_TO_FILE", "Failed to write to log file: ${e.message}")
+    }
+}
 
 suspend fun stopAiScript(): Boolean = withContext(Dispatchers.IO) {
     return@withContext try {
@@ -302,6 +323,8 @@ suspend fun stopAiScript(): Boolean = withContext(Dispatchers.IO) {
 
         if (exitCode == 0) {
             Log.d("STOP_AI", "pkill successfully stopped AI script")
+            // Log to yakt.log file
+            logToFile("AI script was stopped by the user via pkill")
             true
         } else {
             // Fallback to pgrep + kill method
@@ -324,6 +347,7 @@ private suspend fun stopAiScriptFallback(): Boolean = withContext(Dispatchers.IO
         if (output.isNotEmpty()) {
             val lines = output.split("\n")
             var success = true
+            var stoppedProcesses = mutableListOf<String>()
 
             for (line in lines) {
                 try {
@@ -333,7 +357,9 @@ private suspend fun stopAiScriptFallback(): Boolean = withContext(Dispatchers.IO
                         val pid = parts[1]
                         val killProcess = Runtime.getRuntime().exec(arrayOf("su", "-c", "kill -9 $pid"))
                         val exitCode = killProcess.waitFor()
-                        if (exitCode != 0) {
+                        if (exitCode == 0) {
+                            stoppedProcesses.add(pid)
+                        } else {
                             success = false
                             Log.e("STOP_AI", "Failed to kill process $pid")
                         }
@@ -343,14 +369,22 @@ private suspend fun stopAiScriptFallback(): Boolean = withContext(Dispatchers.IO
                     success = false
                 }
             }
+
+            // Log the result
+            if (stoppedProcesses.isNotEmpty()) {
+                logToFile("AI script was stopped by the user (PIDs: ${stoppedProcesses.joinToString(", ")})")
+            } else if (!success) {
+                logToFile("Failed to stop AI script - some processes may still be running")
+            }
+
             success
         } else {
+            logToFile("No running AI script found to stop")
             false
         }
     } catch (e: Exception) {
         Log.e("STOP_AI", "Fallback method failed: ${e.message}")
+        logToFile("Error stopping AI script: ${e.message}")
         false
     }
 }
-
-

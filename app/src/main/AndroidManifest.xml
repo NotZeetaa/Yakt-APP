@@ -36,4 +36,12 @@
         </receiver>
     </application>
 
+    <queries>
+        <!-- Apps that can be launched -->
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+    </queries>
+
 </manifest>

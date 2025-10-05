@@ -13,11 +13,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.compose.*
 import com.notzeetaa.yakt.ui.theme.YaktTest6Theme
 import androidx.activity.viewModels
-import androidx.compose.ui.platform.LocalContext
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.BufferedReader
 import java.io.InputStreamReader
 
@@ -40,7 +42,9 @@ class MainActivity : ComponentActivity() {
                 val updateAvailable by updateViewModel.updateAvailable.collectAsState()
                 val snackbarHostState = remember { SnackbarHostState() }
                 val updateMessageDialog by updateViewModel.updateMessage.collectAsState()
-                var showDialog by remember { mutableStateOf(!isDeviceRooted()) }
+
+                // State for dialogs
+                var showRootDialog by remember { mutableStateOf(false) }
                 var showUpdateDialog by remember { mutableStateOf(false) }
                 val context = LocalContext.current
 
@@ -57,44 +61,36 @@ class MainActivity : ComponentActivity() {
                 val updateMessage = stringResource(R.string.update_available_snackbar)
                 val updateActionLabel = stringResource(R.string.update_action)
 
-                // Composables e LaunchedEffects
-                if (showDialog) {
-                    RootAccessDialog { showDialog = false }
-                }
-
+                // Check root status and updates safely
                 LaunchedEffect(Unit) {
+                    // Check root status on background thread
+                    val isRooted = withContext(Dispatchers.IO) {
+                        isDeviceRooted()
+                    }
+                    showRootDialog = !isRooted
+
+                    // Check for updates
                     updateViewModel.checkForUpdate()
                 }
 
+                // Handle update available snackbar
                 LaunchedEffect(updateAvailable) {
-                    if (updateAvailable) {
-                        val result = snackbarHostState.showSnackbar(
-                            message = updateMessage,
-                            actionLabel = updateActionLabel
-                        )
-                        if (result == SnackbarResult.ActionPerformed) {
-                            updateViewModel.triggerUpdateCheck {
-                                showUpdateDialog = true
-                            }
-                        }
-                    }
-                }
-
-                if (showUpdateDialog && updateMessageDialog != null) {
-                    GeneralDialog(
-                        title = stringResource(R.string.script_update_check_title),
-                        content = { Text(updateMessageDialog!!) },
-                        onDismiss = { showUpdateDialog = false },
-                        confirmText = if (canUpdate) stringResource(R.string.update) else stringResource(R.string.ok),
-                        onConfirm = if (canUpdate) {
-                            {
-                                showUpdateDialog = false
-                                updateViewModel.updateScripts(context) { success, msg ->
-                                    Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+                    if (updateAvailable && snackbarHostState.currentSnackbarData == null) {
+                        try {
+                            val result = snackbarHostState.showSnackbar(
+                                message = updateMessage,
+                                actionLabel = updateActionLabel
+                            )
+                            if (result == SnackbarResult.ActionPerformed) {
+                                updateViewModel.triggerUpdateCheck {
+                                    showUpdateDialog = true
                                 }
                             }
-                        } else null
-                    )
+                        } catch (e: IllegalStateException) {
+                            // Snackbar couldn't be shown, maybe show update dialog directly
+                            showUpdateDialog = true
+                        }
+                    }
                 }
 
                 Scaffold(
@@ -119,9 +115,9 @@ class MainActivity : ComponentActivity() {
                             .fillMaxSize()
                             .padding(innerPadding)
                     ) {
-                        NavHost(navController = navController, startDestination = "home") {
+                        NavHost(navController, startDestination = "home") {
                             composable("home") {
-                                HomePage(viewModel, updateViewModel)
+                                HomePage(viewModel, updateViewModel, navController)
                             }
                             composable("extras") {
                                 ExtrasPage(viewModel, context = this@MainActivity)
@@ -135,19 +131,30 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 }
+
+                // Dialogs rendered at the root level
+                if (showRootDialog) {
+                    RootAccessDialog { showRootDialog = false }
+                }
+
+                if (showUpdateDialog && updateMessageDialog != null) {
+                    GeneralDialog(
+                        title = stringResource(R.string.script_update_check_title),
+                        content = { Text(updateMessageDialog!!) },
+                        onDismiss = { showUpdateDialog = false },
+                        confirmText = if (canUpdate) stringResource(R.string.update) else stringResource(R.string.ok),
+                        onConfirm = if (canUpdate) {
+                            {
+                                showUpdateDialog = false
+                                updateViewModel.updateScripts(context) { success, msg ->
+                                    Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        } else null
+                    )
+                }
             }
         }
-    }
-}
-
-fun isDeviceRooted(): Boolean {
-    return try {
-        val process = Runtime.getRuntime().exec(arrayOf("su", "-c", "whoami"))
-        val bufferedReader = BufferedReader(InputStreamReader(process.inputStream))
-        val output = bufferedReader.readLine()
-        output == "root"
-    } catch (e: Exception) {
-        false
     }
 }
 
@@ -163,6 +170,17 @@ fun RootAccessDialog(onDismiss: () -> Unit) {
             }
         }
     )
+}
+
+fun isDeviceRooted(): Boolean {
+    return try {
+        val process = Runtime.getRuntime().exec(arrayOf("su", "-c", "whoami"))
+        val bufferedReader = BufferedReader(InputStreamReader(process.inputStream))
+        val output = bufferedReader.readLine()
+        output == "root"
+    } catch (e: Exception) {
+        false
+    }
 }
 
 @Composable
